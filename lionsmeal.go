@@ -62,10 +62,10 @@ func parseMenu(url string) []MealDay {
 	supperSel := doc.Find("table tr").Eq(5).Find("td")
 
 	for i := 0; i < 7; i++ {
-		bf[i] = bfSel.Eq(i + 1).Text()
-		lunch[i] = lunchSel.Eq(i + 1).Text()
-		dinner[i] = dinnerSel.Eq(i + 1).Text()
-		supper[i] = supperSel.Eq(i + 1).Text()
+		bf[i] = strings.TrimSpace(bfSel.Eq(i + 1).Text())
+		lunch[i] = strings.TrimSpace(lunchSel.Eq(i + 1).Text())
+		dinner[i] = strings.TrimSpace(dinnerSel.Eq(i + 1).Text())
+		supper[i] = strings.TrimSpace(supperSel.Eq(i + 1).Text())
 	}
 
 	mealdays := make([]MealDay, 7)
