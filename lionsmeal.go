@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -17,6 +18,34 @@ type MealDay struct {
 	Lunch     string `json:"lunch"`
 	Dinner    string `json:"dinner"`
 	Supper    string `json:"supper"`
+}
+
+func parseMenuEndingDate(dateStr string) time.Time {
+	// dateStr should be like "dd.mm.-dd.mm.yyyy"
+
+	idx := strings.LastIndex(dateStr, ".")                 // find the last dot in the string
+	year, err := strconv.ParseUint(dateStr[idx+1:], 10, 0) // and parse the number after it
+	if err != nil {
+		log.Fatal("Could not parse year: ", err)
+	}
+
+	dateStr = dateStr[:idx]                                 // remove the year from the date string
+	idx = strings.LastIndex(dateStr, ".")                   // find last dot again
+	month, err := strconv.ParseUint(dateStr[idx+1:], 10, 0) // and parse the number after it == month
+	if err != nil {
+		log.Fatal("Could not parse month: ", err)
+	}
+
+	dateStr = dateStr[:idx]                                        // remove the month from the date string
+	day, err := strconv.ParseUint(dateStr[len(dateStr)-2:], 10, 0) // try to parse unsigned number using two last characters
+	if err != nil {                                                // if fails, probably has dash for the first character
+		day, err = strconv.ParseUint(dateStr[len(dateStr)-1:], 10, 0) // parse unsigned number using only the last character
+		if err != nil {
+			log.Fatal("Could not parse day: ", err)
+		}
+	}
+
+	return time.Date(int(year), time.Month(month), int(day), 0, 0, 0, 0, time.UTC)
 }
 
 func parseMenu(url string) []MealDay {
@@ -39,12 +68,9 @@ func parseMenu(url string) []MealDay {
 	}
 
 	sel := doc.Find("table tr").First().Find("td").Last()
-	dateSl := strings.Split(sel.Text(), "-")
-	endDateStr := strings.TrimSpace(strings.Replace(dateSl[len(dateSl)-1], ".", "/", -1))
-	date, err := time.Parse("2/1/2006", endDateStr)
-	if err != nil {
-		log.Fatal(err)
-	}
+	endDateStr := strings.TrimSpace(sel.Text())
+	date := parseMenuEndingDate(endDateStr)
+
 	weekDur, err := time.ParseDuration("-144h")
 	date = date.Add(weekDur)
 
