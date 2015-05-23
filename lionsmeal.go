@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -46,6 +47,11 @@ func parseMenuEndingDate(dateStr string) time.Time {
 	}
 
 	return time.Date(int(year), time.Month(month), int(day), 0, 0, 0, 0, time.UTC)
+}
+
+func removeEmptyLines(input string) string {
+	rex := regexp.MustCompile("\\n\\s+\\n")
+	return rex.ReplaceAllLiteralString(input, "\n")
 }
 
 func parseMenu(url string) []MealDay {
@@ -88,10 +94,10 @@ func parseMenu(url string) []MealDay {
 	supperSel := doc.Find("table tr").Eq(5).Find("td")
 
 	for i := 0; i < 7; i++ {
-		bf[i] = strings.TrimSpace(bfSel.Eq(i + 1).Text())
-		lunch[i] = strings.TrimSpace(lunchSel.Eq(i + 1).Text())
-		dinner[i] = strings.TrimSpace(dinnerSel.Eq(i + 1).Text())
-		supper[i] = strings.TrimSpace(supperSel.Eq(i + 1).Text())
+		bf[i] = removeEmptyLines(strings.TrimSpace(bfSel.Eq(i + 1).Text()))
+		lunch[i] = removeEmptyLines(strings.TrimSpace(lunchSel.Eq(i + 1).Text()))
+		dinner[i] = removeEmptyLines(strings.TrimSpace(dinnerSel.Eq(i + 1).Text()))
+		supper[i] = removeEmptyLines(strings.TrimSpace(supperSel.Eq(i + 1).Text()))
 	}
 
 	mealdays := make([]MealDay, 7)
