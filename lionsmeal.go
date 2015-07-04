@@ -13,7 +13,7 @@ import (
 	"time"
 )
 
-type MealDay struct {
+type mealDay struct {
 	Date      int64  `json:"date"`
 	Breakfast string `json:"breakfast"`
 	Lunch     string `json:"lunch"`
@@ -54,7 +54,7 @@ func removeEmptyLines(input string) string {
 	return rex.ReplaceAllLiteralString(input, "\n")
 }
 
-func parseMenu(url string) []MealDay {
+func parseMenu(url string) []mealDay {
 	res, err := http.Get(url)
 	if err != nil {
 		log.Fatal(err)
@@ -100,9 +100,9 @@ func parseMenu(url string) []MealDay {
 		supper[i] = removeEmptyLines(strings.TrimSpace(supperSel.Eq(i + 1).Text()))
 	}
 
-	mealdays := make([]MealDay, 7)
+	mealdays := make([]mealDay, 7)
 	for i := 0; i < 7; i++ {
-		mealdays[i] = MealDay{date.Unix(),
+		mealdays[i] = mealDay{date.Unix(),
 			bf[i],
 			lunch[i],
 			dinner[i],
