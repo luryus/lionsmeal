@@ -115,22 +115,11 @@ func parseMenu(url string) []MealDay {
 
 func main() {
 
-	args := os.Args[1:]
-	if len(args) != 1 {
-		log.Fatal("Invalid arguments")
-	}
-
 	mealdays1 := parseMenu("http://www.leijonacatering.fi/ruokalista_varuskunta.php")
 	mealdays2 := parseMenu("http://www.leijonacatering.fi/ruokalista_varuskunta_seur.php")
 
 	alldays := append(mealdays1, mealdays2...)
 
-	outFile, err := os.Create(args[0])
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer outFile.Close()
-
-	enc := json.NewEncoder(outFile)
+	enc := json.NewEncoder(os.Stdout)
 	enc.Encode(alldays)
 }
